@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { Search, Bell, X } from "lucide-react";
+import { Search, Bell, X, ClipboardList, CheckCircle2, RefreshCw, MessageCircle, Pin } from "lucide-react";
 import { MOCK_NOTIFICATIONS } from "@/lib/data";
+import ThemeToggle from "@/components/ThemeToggle";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface HeaderBarProps {
   onSearch?: (query: string) => void;
@@ -28,13 +30,14 @@ const HeaderBar = ({ onSearch }: HeaderBarProps) => {
     onSearch?.(val);
   };
 
-  const typeIcon = (type: string) => {
+  const TypeIcon = ({ type }: { type: string }) => {
+    const iconClass = "w-4 h-4";
     switch (type) {
-      case 'task_assigned': return '📋';
-      case 'task_completed': return '✅';
-      case 'task_updated': return '🔄';
-      case 'comment': return '💬';
-      default: return '📌';
+      case 'task_assigned': return <ClipboardList className={`${iconClass} text-info`} />;
+      case 'task_completed': return <CheckCircle2 className={`${iconClass} text-success`} />;
+      case 'task_updated': return <RefreshCw className={`${iconClass} text-warning`} />;
+      case 'comment': return <MessageCircle className={`${iconClass} text-secondary`} />;
+      default: return <Pin className={`${iconClass} text-muted-foreground`} />;
     }
   };
 
@@ -62,7 +65,7 @@ const HeaderBar = ({ onSearch }: HeaderBarProps) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {/* Mobile Search Toggle */}
           <button
             onClick={() => setSearchOpen(!searchOpen)}
@@ -70,6 +73,9 @@ const HeaderBar = ({ onSearch }: HeaderBarProps) => {
           >
             <Search className="w-5 h-5 text-foreground" />
           </button>
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Notification Bell */}
           <div ref={notifRef} className="relative">
@@ -103,7 +109,9 @@ const HeaderBar = ({ onSearch }: HeaderBarProps) => {
                       }`}
                     >
                       <div className="flex gap-3">
-                        <span className="text-lg shrink-0">{typeIcon(notif.type)}</span>
+                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                          <TypeIcon type={notif.type} />
+                        </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
                             <p className="text-xs font-semibold text-foreground">{notif.title}</p>
@@ -126,9 +134,10 @@ const HeaderBar = ({ onSearch }: HeaderBarProps) => {
           </div>
 
           {/* Profile Avatar */}
-          <button className="w-9 h-9 rounded-full stat-gradient text-primary-foreground flex items-center justify-center text-xs font-bold font-display">
-            RA
-          </button>
+          <Avatar className="w-9 h-9 cursor-pointer">
+            <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rasel" alt="Rasel Ahmed" />
+            <AvatarFallback className="stat-gradient text-primary-foreground text-xs font-bold font-display">RA</AvatarFallback>
+          </Avatar>
         </div>
       </div>
 

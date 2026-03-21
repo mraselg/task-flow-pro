@@ -1,6 +1,7 @@
-import { MOCK_TASKS, MOCK_MEMBERS, STATUS_LABELS, CATEGORY_LABELS, type TaskStatus, type TaskCategory } from "@/lib/data";
-import { ListTodo, Clock, CheckCircle2, TrendingUp, Users, FolderKanban } from "lucide-react";
+import { MOCK_TASKS, MOCK_MEMBERS, STATUS_LABELS, CATEGORY_LABELS, type TaskCategory } from "@/lib/data";
+import { ListTodo, Clock, CheckCircle2, TrendingUp, Users, FolderKanban, AlertTriangle } from "lucide-react";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const DashboardPage = () => {
   const todoCount = MOCK_TASKS.filter(t => t.status === 'todo').length;
@@ -16,28 +17,24 @@ const DashboardPage = () => {
     { label: "Completed", value: completedCount, icon: CheckCircle2, color: "bg-success text-success-foreground" },
   ];
 
-  // Pie chart data
   const pieData = [
     { name: "Completed", value: completedCount, color: "hsl(152, 60%, 42%)" },
     { name: "In Progress", value: progressCount, color: "hsl(38, 92%, 50%)" },
     { name: "To Do", value: todoCount, color: "hsl(210, 80%, 55%)" },
   ];
 
-  // Bar chart - tasks per category
   const categoryData = (Object.keys(CATEGORY_LABELS) as TaskCategory[]).map(cat => ({
     name: CATEGORY_LABELS[cat].split(' ')[0],
     tasks: MOCK_TASKS.filter(t => t.category === cat).length,
     completed: MOCK_TASKS.filter(t => t.category === cat && t.status === 'completed').length,
   }));
 
-  // Priority distribution
   const highPriority = MOCK_TASKS.filter(t => t.priority === 'high').length;
   const medPriority = MOCK_TASKS.filter(t => t.priority === 'medium').length;
   const lowPriority = MOCK_TASKS.filter(t => t.priority === 'low').length;
 
   const recentTasks = MOCK_TASKS.slice(0, 5);
 
-  // Upcoming deadlines
   const upcomingTasks = [...MOCK_TASKS]
     .filter(t => t.status !== 'completed')
     .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
@@ -45,7 +42,6 @@ const DashboardPage = () => {
 
   return (
     <div className="p-4 lg:p-8 max-w-6xl mx-auto">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl lg:text-3xl font-display font-bold text-foreground">Dashboard</h1>
         <p className="text-muted-foreground text-sm mt-1">Welcome back, Rasel! Here's your overview.</p>
@@ -66,7 +62,6 @@ const DashboardPage = () => {
         ))}
       </div>
 
-      {/* Extra stats row */}
       <div className="grid grid-cols-2 gap-3 lg:gap-4 mb-6">
         <div className="glass-card rounded-xl p-4 flex items-center gap-4">
           <div className="w-10 h-10 rounded-lg bg-secondary/15 text-secondary flex items-center justify-center">
@@ -90,34 +85,17 @@ const DashboardPage = () => {
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        {/* Pie Chart */}
         <div className="glass-card rounded-xl p-5">
           <h3 className="font-display font-semibold text-foreground mb-4">Task Status Overview</h3>
           <div className="flex items-center justify-center">
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={85}
-                  paddingAngle={4}
-                  dataKey="value"
-                  strokeWidth={0}
-                >
+                <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={4} dataKey="value" strokeWidth={0}>
                   {pieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '0.75rem',
-                    fontSize: '12px',
-                  }}
-                />
+                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '0.75rem', fontSize: '12px' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -131,21 +109,13 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Bar Chart */}
         <div className="glass-card rounded-xl p-5">
           <h3 className="font-display font-semibold text-foreground mb-4">Tasks by Department</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={categoryData} barGap={8}>
               <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '0.75rem',
-                  fontSize: '12px',
-                }}
-              />
+              <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '0.75rem', fontSize: '12px' }} />
               <Bar dataKey="tasks" fill="hsl(210, 80%, 55%)" radius={[6, 6, 0, 0]} name="Total" />
               <Bar dataKey="completed" fill="hsl(152, 60%, 42%)" radius={[6, 6, 0, 0]} name="Done" />
             </BarChart>
@@ -204,14 +174,21 @@ const DashboardPage = () => {
               const daysLeft = Math.ceil((new Date(task.deadline).getTime() - new Date("2026-03-21").getTime()) / (1000 * 60 * 60 * 24));
               const member = MOCK_MEMBERS.find(m => m.id === task.assignedTo);
               return (
-                <div key={task.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50">
-                  <div className="min-w-0">
+                <div key={task.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/50">
+                  {member && (
+                    <Avatar className="w-7 h-7">
+                      <AvatarImage src={member.avatar} alt={member.name} />
+                      <AvatarFallback className="text-[9px] font-bold">{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold text-foreground truncate">{task.title}</p>
                     <p className="text-[10px] text-muted-foreground">{member?.name}</p>
                   </div>
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded-lg shrink-0 ml-2 ${
+                  <span className={`text-[10px] font-bold px-2 py-1 rounded-lg shrink-0 flex items-center gap-1 ${
                     daysLeft <= 3 ? 'bg-destructive/15 text-destructive' : daysLeft <= 7 ? 'bg-warning/15 text-warning' : 'bg-muted text-muted-foreground'
                   }`}>
+                    {daysLeft <= 3 && <AlertTriangle className="w-3 h-3" />}
                     {daysLeft}d left
                   </span>
                 </div>
@@ -228,12 +205,18 @@ const DashboardPage = () => {
           {recentTasks.map((task) => {
             const member = MOCK_MEMBERS.find(m => m.id === task.assignedTo);
             return (
-              <div key={task.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+              <div key={task.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                {member && (
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={member.avatar} alt={member.name} />
+                    <AvatarFallback className="text-[10px] font-bold">{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                  </Avatar>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{task.title}</p>
                   <p className="text-xs text-muted-foreground">{member?.name} · {CATEGORY_LABELS[task.category]}</p>
                 </div>
-                <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full shrink-0 ml-3 ${
+                <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full shrink-0 ${
                   task.status === 'completed' ? 'bg-success/15 text-success' :
                   task.status === 'in_progress' ? 'bg-warning/15 text-warning' :
                   'bg-info/15 text-info'
