@@ -58,21 +58,20 @@ export const STATUS_LABELS: Record<TaskStatus, string> = {
 };
 
 export const MOCK_MEMBERS: TeamMember[] = [
-  { id: '1', name: 'Rasel Ahmed', role: 'super_admin', category: 'web_design', title: 'Super Admin', avatar: '', description: 'Founder & CEO of RaselXmira' },
-  { id: '2', name: 'Karim Hasan', role: 'main_agent', category: 'web_design', title: 'Project Manager', avatar: '', description: 'Web project coordinator' },
-  { id: '3', name: 'Nadia Islam', role: 'sub_agent', category: 'web_design', title: 'UI/UX Specialist', avatar: '', description: 'User interface designer' },
-  { id: '4', name: 'Tanvir Rahman', role: 'sub_agent', category: 'web_design', title: 'Frontend Developer', avatar: '', description: 'React & Tailwind expert' },
-  { id: '5', name: 'Sumon Dev', role: 'sub_agent', category: 'web_design', title: 'Backend Developer', avatar: '', description: 'Node.js & database specialist' },
-  { id: '6', name: 'Rima Khatun', role: 'main_agent', category: 'digital_marketing', title: 'Marketing Lead', avatar: '', description: 'Digital marketing strategist' },
-  { id: '7', name: 'Fahim Khan', role: 'sub_agent', category: 'digital_marketing', title: 'SEO Specialist', avatar: '', description: 'Search engine optimization expert' },
-  { id: '8', name: 'Mitu Akter', role: 'sub_agent', category: 'digital_marketing', title: 'Ad Campaign Expert', avatar: '', description: 'Facebook & Google Ads specialist' },
-  { id: '9', name: 'Arif Hossain', role: 'sub_agent', category: 'digital_marketing', title: 'Content Writer', avatar: '', description: 'SEO content & copywriting' },
-  { id: '10', name: 'Shakil Ahmed', role: 'main_agent', category: 'graphic_video', title: 'Creative Director', avatar: '', description: 'Visual design lead' },
-  { id: '11', name: 'Luna Begum', role: 'sub_agent', category: 'graphic_video', title: 'Logo Designer', avatar: '', description: 'Brand identity specialist' },
-  { id: '12', name: 'Jubayer Ali', role: 'sub_agent', category: 'graphic_video', title: 'Motion Graphics Editor', avatar: '', description: 'After Effects & animation' },
-  { id: '13', name: 'Sadia Jahan', role: 'sub_agent', category: 'graphic_video', title: 'Color Grading Specialist', avatar: '', description: 'DaVinci Resolve expert' },
+  { id: '1', name: 'Rasel Ahmed', role: 'super_admin', category: 'web_design', title: 'Super Admin', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rasel', description: 'Founder & CEO of RaselXmira' },
+  { id: '2', name: 'Karim Hasan', role: 'main_agent', category: 'web_design', title: 'Project Manager', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Karim', description: 'Web project coordinator' },
+  { id: '3', name: 'Nadia Islam', role: 'sub_agent', category: 'web_design', title: 'UI/UX Specialist', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nadia', description: 'User interface designer' },
+  { id: '4', name: 'Tanvir Rahman', role: 'sub_agent', category: 'web_design', title: 'Frontend Developer', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Tanvir', description: 'React & Tailwind expert' },
+  { id: '5', name: 'Sumon Dev', role: 'sub_agent', category: 'web_design', title: 'Backend Developer', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sumon', description: 'Node.js & database specialist' },
+  { id: '6', name: 'Rima Khatun', role: 'main_agent', category: 'digital_marketing', title: 'Marketing Lead', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rima', description: 'Digital marketing strategist' },
+  { id: '7', name: 'Fahim Khan', role: 'sub_agent', category: 'digital_marketing', title: 'SEO Specialist', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Fahim', description: 'Search engine optimization expert' },
+  { id: '8', name: 'Mitu Akter', role: 'sub_agent', category: 'digital_marketing', title: 'Ad Campaign Expert', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mitu', description: 'Facebook & Google Ads specialist' },
+  { id: '9', name: 'Arif Hossain', role: 'sub_agent', category: 'digital_marketing', title: 'Content Writer', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Arif', description: 'SEO content & copywriting' },
+  { id: '10', name: 'Shakil Ahmed', role: 'main_agent', category: 'graphic_video', title: 'Creative Director', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Shakil', description: 'Visual design lead' },
+  { id: '11', name: 'Luna Begum', role: 'sub_agent', category: 'graphic_video', title: 'Logo Designer', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Luna', description: 'Brand identity specialist' },
+  { id: '12', name: 'Jubayer Ali', role: 'sub_agent', category: 'graphic_video', title: 'Motion Graphics Editor', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jubayer', description: 'After Effects & animation' },
+  { id: '13', name: 'Sadia Jahan', role: 'sub_agent', category: 'graphic_video', title: 'Color Grading Specialist', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sadia', description: 'DaVinci Resolve expert' },
 ];
-
 export const MOCK_TASKS: Task[] = [
   { id: '1', title: 'E-commerce Website Redesign', description: 'Complete overhaul of the client e-commerce site with modern UI', status: 'in_progress', category: 'web_design', deadline: '2026-04-05', assignedTo: '4', createdBy: '1', createdAt: '2026-03-15', priority: 'high' },
   { id: '2', title: 'SEO Audit for ClientX', description: 'Full SEO audit and report generation', status: 'todo', category: 'digital_marketing', deadline: '2026-03-28', assignedTo: '7', createdBy: '1', createdAt: '2026-03-18', priority: 'medium' },

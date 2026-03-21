@@ -1,12 +1,13 @@
 import { MOCK_MEMBERS, MOCK_TASKS, CATEGORY_LABELS, type TaskCategory } from "@/lib/data";
-import { Crown, Shield, User, Briefcase, CheckCircle2, Clock } from "lucide-react";
+import { Crown, Shield, Briefcase, CheckCircle2, Clock, Globe, TrendingUp, Palette } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const CATEGORIES: TaskCategory[] = ["web_design", "digital_marketing", "graphic_video"];
 
-const CATEGORY_ICONS: Record<TaskCategory, string> = {
-  web_design: "🌐",
-  digital_marketing: "📈",
-  graphic_video: "🎨",
+const CATEGORY_ICONS: Record<TaskCategory, React.ReactNode> = {
+  web_design: <Globe className="w-5 h-5" />,
+  digital_marketing: <TrendingUp className="w-5 h-5" />,
+  graphic_video: <Palette className="w-5 h-5" />,
 };
 
 const TeamPage = () => {
@@ -32,9 +33,12 @@ const TeamPage = () => {
       {admin && (
         <div className="stat-gradient rounded-xl p-5 mb-6 text-primary-foreground">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center text-xl font-bold font-display">
-              {admin.name.split(' ').map(n => n[0]).join('')}
-            </div>
+            <Avatar className="w-16 h-16 rounded-2xl border-2 border-primary-foreground/20">
+              <AvatarImage src={admin.avatar} alt={admin.name} />
+              <AvatarFallback className="rounded-2xl bg-primary-foreground/20 text-xl font-bold font-display">
+                {admin.name.split(' ').map(n => n[0]).join('')}
+              </AvatarFallback>
+            </Avatar>
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <Crown className="w-4 h-4" />
@@ -72,7 +76,9 @@ const TeamPage = () => {
           <div key={cat} className="mb-8">
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-display font-bold text-foreground text-base flex items-center gap-2">
-                <span className="text-lg">{CATEGORY_ICONS[cat]}</span>
+                <div className="w-8 h-8 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center">
+                  {CATEGORY_ICONS[cat]}
+                </div>
                 {CATEGORY_LABELS[cat]}
               </h2>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -98,9 +104,12 @@ const TeamPage = () => {
               return (
                 <div key={agent.id} className="glass-card rounded-xl p-4 mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-info/15 text-info flex items-center justify-center text-sm font-bold font-display">
-                      {agent.name.split(' ').map(n => n[0]).join('')}
-                    </div>
+                    <Avatar className="w-12 h-12 rounded-xl">
+                      <AvatarImage src={agent.avatar} alt={agent.name} />
+                      <AvatarFallback className="rounded-xl bg-info/15 text-info text-sm font-bold font-display">
+                        {agent.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center gap-1.5">
                         <Shield className="w-3.5 h-3.5 text-info" />
@@ -129,9 +138,12 @@ const TeamPage = () => {
                 return (
                   <div key={sub.id} className="glass-card rounded-xl p-3.5 hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-muted text-muted-foreground flex items-center justify-center text-xs font-bold font-display">
-                        {sub.name.split(' ').map(n => n[0]).join('')}
-                      </div>
+                      <Avatar className="w-10 h-10 rounded-xl">
+                        <AvatarImage src={sub.avatar} alt={sub.name} />
+                        <AvatarFallback className="rounded-xl bg-muted text-muted-foreground text-xs font-bold font-display">
+                          {sub.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-foreground truncate">{sub.name}</p>
                         <p className="text-[10px] text-muted-foreground truncate">{sub.title}</p>

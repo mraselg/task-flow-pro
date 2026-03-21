@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { MOCK_TASKS, MOCK_MEMBERS, CATEGORY_LABELS, type TaskStatus, type TaskCategory, type Task } from "@/lib/data";
-import { Clock, CalendarDays, User, ChevronRight, Search, Filter, X } from "lucide-react";
+import { Clock, CalendarDays, ChevronRight, Search, Filter, X, AlertTriangle } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import TaskDetailModal from "@/components/TaskDetailModal";
 
 const TABS: { id: TaskStatus; label: string; color: string }[] = [
@@ -177,29 +178,38 @@ const TasksPage = ({ searchQuery = "" }: TasksPageProps) => {
                 className="glass-card rounded-xl p-4 lg:p-5 hover:shadow-md transition-all cursor-pointer group"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                        task.priority === 'high' ? 'bg-destructive/15 text-destructive' :
-                        task.priority === 'medium' ? 'bg-warning/15 text-warning' :
-                        'bg-muted text-muted-foreground'
-                      }`}>
-                        {task.priority.toUpperCase()}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground px-2 py-0.5 rounded bg-muted">
-                        {CATEGORY_LABELS[task.category]}
-                      </span>
-                      {task.status !== 'completed' && daysLeft <= 3 && daysLeft >= 0 && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-destructive/15 text-destructive">
-                          ⚠ {daysLeft === 0 ? 'Due today' : `${daysLeft}d left`}
+                  <div className="flex gap-3 flex-1 min-w-0">
+                    {member && (
+                      <Avatar className="w-9 h-9 mt-0.5 shrink-0">
+                        <AvatarImage src={member.avatar} alt={member.name} />
+                        <AvatarFallback className="text-[10px] font-bold">{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                          task.priority === 'high' ? 'bg-destructive/15 text-destructive' :
+                          task.priority === 'medium' ? 'bg-warning/15 text-warning' :
+                          'bg-muted text-muted-foreground'
+                        }`}>
+                          {task.priority.toUpperCase()}
                         </span>
-                      )}
-                    </div>
-                    <h3 className="text-sm font-semibold text-foreground">{task.title}</h3>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{task.description}</p>
-                    <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1"><User className="w-3 h-3" />{member?.name}</span>
-                      <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" />{task.deadline}</span>
+                        <span className="text-[10px] text-muted-foreground px-2 py-0.5 rounded bg-muted">
+                          {CATEGORY_LABELS[task.category]}
+                        </span>
+                        {task.status !== 'completed' && daysLeft <= 3 && daysLeft >= 0 && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-destructive/15 text-destructive flex items-center gap-0.5">
+                            <AlertTriangle className="w-3 h-3" />
+                            {daysLeft === 0 ? 'Due today' : `${daysLeft}d left`}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-sm font-semibold text-foreground">{task.title}</h3>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{task.description}</p>
+                      <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">{member?.name}</span>
+                        <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" />{task.deadline}</span>
+                      </div>
                     </div>
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 mt-1 group-hover:text-secondary transition-colors" />

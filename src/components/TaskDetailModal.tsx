@@ -1,6 +1,7 @@
-import { X, CalendarDays, User, MessageSquare, Send, Clock, ArrowRight } from "lucide-react";
+import { X, CalendarDays, MessageSquare, Send, Clock, ArrowRight, UserCircle } from "lucide-react";
 import { useState } from "react";
 import { MOCK_MEMBERS, MOCK_ACTIVITIES, CATEGORY_LABELS, STATUS_LABELS, type Task, type TaskStatus } from "@/lib/data";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface TaskDetailModalProps {
   task: Task | null;
@@ -79,13 +80,11 @@ const TaskDetailModal = ({ task, onClose }: TaskDetailModalProps) => {
         <div className="p-5">
           {activeTab === "details" ? (
             <div className="space-y-5">
-              {/* Description */}
               <div>
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Description</h4>
                 <p className="text-sm text-foreground leading-relaxed">{task.description}</p>
               </div>
 
-              {/* Status */}
               <div>
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Status</h4>
                 <div className="flex gap-2">
@@ -102,23 +101,42 @@ const TaskDetailModal = ({ task, onClose }: TaskDetailModalProps) => {
                 </div>
               </div>
 
-              {/* Info Grid */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="glass-card rounded-xl p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <User className="w-3.5 h-3.5 text-muted-foreground" />
+                  <div className="flex items-center gap-2 mb-2">
+                    <UserCircle className="w-3.5 h-3.5 text-muted-foreground" />
                     <span className="text-[10px] font-semibold text-muted-foreground uppercase">Assigned To</span>
                   </div>
-                  <p className="text-sm font-semibold text-foreground">{member?.name || "Unassigned"}</p>
-                  <p className="text-[10px] text-muted-foreground">{member?.title}</p>
+                  <div className="flex items-center gap-2">
+                    {member && (
+                      <Avatar className="w-7 h-7">
+                        <AvatarImage src={member.avatar} alt={member.name} />
+                        <AvatarFallback className="text-[9px] font-bold">{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{member?.name || "Unassigned"}</p>
+                      <p className="text-[10px] text-muted-foreground">{member?.title}</p>
+                    </div>
+                  </div>
                 </div>
                 <div className="glass-card rounded-xl p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <User className="w-3.5 h-3.5 text-muted-foreground" />
+                  <div className="flex items-center gap-2 mb-2">
+                    <UserCircle className="w-3.5 h-3.5 text-muted-foreground" />
                     <span className="text-[10px] font-semibold text-muted-foreground uppercase">Created By</span>
                   </div>
-                  <p className="text-sm font-semibold text-foreground">{creator?.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{task.createdAt}</p>
+                  <div className="flex items-center gap-2">
+                    {creator && (
+                      <Avatar className="w-7 h-7">
+                        <AvatarImage src={creator.avatar} alt={creator.name} />
+                        <AvatarFallback className="text-[9px] font-bold">{creator.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{creator?.name}</p>
+                      <p className="text-[10px] text-muted-foreground">{task.createdAt}</p>
+                    </div>
+                  </div>
                 </div>
                 <div className="glass-card rounded-xl p-3">
                   <div className="flex items-center gap-2 mb-1">
@@ -145,36 +163,44 @@ const TaskDetailModal = ({ task, onClose }: TaskDetailModalProps) => {
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Activity Timeline */}
               <div className="relative">
                 <div className="absolute left-4 top-2 bottom-2 w-px bg-border" />
                 <div className="space-y-4">
-                  {activities.map(act => (
-                    <div key={act.id} className="flex gap-4 relative">
-                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0 z-10 text-xs font-bold font-display text-muted-foreground">
-                        {act.user.split(' ').map(n => n[0]).join('')}
+                  {activities.map(act => {
+                    const actMember = MOCK_MEMBERS.find(m => m.name === act.user);
+                    return (
+                      <div key={act.id} className="flex gap-3 relative">
+                        <Avatar className="w-8 h-8 shrink-0 z-10">
+                          {actMember ? (
+                            <>
+                              <AvatarImage src={actMember.avatar} alt={actMember.name} />
+                              <AvatarFallback className="text-[9px] font-bold">{act.user.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                            </>
+                          ) : (
+                            <AvatarFallback className="text-[9px] font-bold">{act.user.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                          )}
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-foreground">
+                            <span className="font-semibold">{act.user}</span>{' '}
+                            <span className="text-muted-foreground">{act.action}</span>
+                          </p>
+                          <p className="text-[10px] text-muted-foreground/60 mt-0.5">{act.timestamp}</p>
+                          {act.comment && (
+                            <div className="mt-2 p-3 rounded-lg bg-muted/50 text-xs text-foreground leading-relaxed">
+                              {act.comment}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-foreground">
-                          <span className="font-semibold">{act.user}</span>{' '}
-                          <span className="text-muted-foreground">{act.action}</span>
-                        </p>
-                        <p className="text-[10px] text-muted-foreground/60 mt-0.5">{act.timestamp}</p>
-                        {act.comment && (
-                          <div className="mt-2 p-3 rounded-lg bg-muted/50 text-xs text-foreground leading-relaxed">
-                            {act.comment}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {activities.length === 0 && (
                     <p className="text-sm text-muted-foreground text-center py-8">No activity yet</p>
                   )}
                 </div>
               </div>
 
-              {/* Comment Input */}
               <div className="flex gap-2 pt-2 border-t border-border">
                 <input
                   type="text"
