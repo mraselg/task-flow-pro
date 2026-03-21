@@ -6,6 +6,7 @@ import TasksPage from "@/components/pages/TasksPage";
 import CalendarPage from "@/components/pages/CalendarPage";
 import TeamPage from "@/components/pages/TeamPage";
 import AddTaskModal from "@/components/AddTaskModal";
+import HeaderBar from "@/components/HeaderBar";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -20,6 +21,7 @@ type TabId = "dashboard" | "tasks" | "calendar" | "team";
 const AppLayout = () => {
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [globalSearch, setGlobalSearch] = useState("");
 
   const handleNavClick = (id: string) => {
     if (id === "add") {
@@ -32,7 +34,7 @@ const AppLayout = () => {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 bg-sidebar border-r border-sidebar-border">
+      <aside className="hidden lg:flex flex-col w-64 bg-sidebar border-r border-sidebar-border fixed inset-y-0 left-0 z-30">
         <div className="p-6">
           <h1 className="font-display text-xl font-bold text-sidebar-foreground">
             Rasel<span className="text-sidebar-primary">X</span>mira
@@ -67,7 +69,8 @@ const AppLayout = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 pb-20 lg:pb-0 overflow-y-auto">
+      <main className="flex-1 pb-20 lg:pb-0 lg:ml-64 overflow-y-auto">
+        <HeaderBar onSearch={setGlobalSearch} />
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -77,7 +80,7 @@ const AppLayout = () => {
             transition={{ duration: 0.2 }}
           >
             {activeTab === "dashboard" && <DashboardPage />}
-            {activeTab === "tasks" && <TasksPage />}
+            {activeTab === "tasks" && <TasksPage searchQuery={globalSearch} />}
             {activeTab === "calendar" && <CalendarPage />}
             {activeTab === "team" && <TeamPage />}
           </motion.div>
@@ -85,7 +88,7 @@ const AppLayout = () => {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-lg border-t border-border z-50">
         <div className="flex items-center justify-around h-[var(--nav-height)]">
           {NAV_ITEMS.map((item) => {
             const isAdd = item.id === "add";

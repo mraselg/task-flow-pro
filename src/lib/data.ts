@@ -27,6 +27,24 @@ export interface Task {
   priority: 'low' | 'medium' | 'high';
 }
 
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
+  type: 'task_assigned' | 'task_completed' | 'task_updated' | 'comment';
+}
+
+export interface Activity {
+  id: string;
+  taskId: string;
+  user: string;
+  action: string;
+  timestamp: string;
+  comment?: string;
+}
+
 export const CATEGORY_LABELS: Record<TaskCategory, string> = {
   web_design: 'Web Design & Dev',
   digital_marketing: 'Digital Marketing',
@@ -66,4 +84,26 @@ export const MOCK_TASKS: Task[] = [
   { id: '8', title: 'API Integration', description: 'Integrate payment gateway API', status: 'completed', category: 'web_design', deadline: '2026-03-18', assignedTo: '5', createdBy: '1', createdAt: '2026-03-08', priority: 'high' },
   { id: '9', title: 'Social Media Graphics', description: 'Design 10 social media post templates', status: 'completed', category: 'graphic_video', deadline: '2026-03-17', assignedTo: '11', createdBy: '1', createdAt: '2026-03-07', priority: 'low' },
   { id: '10', title: 'Database Optimization', description: 'Optimize MongoDB queries and indexes', status: 'in_progress', category: 'web_design', deadline: '2026-03-27', assignedTo: '5', createdBy: '1', createdAt: '2026-03-17', priority: 'high' },
+];
+
+export const MOCK_NOTIFICATIONS: Notification[] = [
+  { id: '1', title: 'New Task Assigned', message: 'E-commerce Website Redesign has been assigned to Tanvir Rahman', time: '5 min ago', read: false, type: 'task_assigned' },
+  { id: '2', title: 'Task Completed', message: 'Brand Logo Package has been marked as completed by Luna Begum', time: '1 hour ago', read: false, type: 'task_completed' },
+  { id: '3', title: 'New Comment', message: 'Karim Hasan commented on Landing Page Development', time: '2 hours ago', read: false, type: 'comment' },
+  { id: '4', title: 'Status Updated', message: 'Facebook Ad Campaign moved to In Progress', time: '3 hours ago', read: true, type: 'task_updated' },
+  { id: '5', title: 'Task Completed', message: 'API Integration completed by Sumon Dev', time: '1 day ago', read: true, type: 'task_completed' },
+  { id: '6', title: 'New Task Assigned', message: 'Product Video Editing assigned to Jubayer Ali', time: '1 day ago', read: true, type: 'task_assigned' },
+  { id: '7', title: 'Deadline Approaching', message: 'Blog Content Writing deadline is tomorrow', time: '2 days ago', read: true, type: 'task_updated' },
+];
+
+export const MOCK_ACTIVITIES: Activity[] = [
+  { id: '1', taskId: '1', user: 'Rasel Ahmed', action: 'created this task', timestamp: '2026-03-15 09:00' },
+  { id: '2', taskId: '1', user: 'Karim Hasan', action: 'assigned to Tanvir Rahman', timestamp: '2026-03-15 10:30' },
+  { id: '3', taskId: '1', user: 'Tanvir Rahman', action: 'changed status to In Progress', timestamp: '2026-03-16 08:00' },
+  { id: '4', taskId: '1', user: 'Tanvir Rahman', action: 'left a comment', timestamp: '2026-03-18 14:00', comment: 'Homepage design is 60% complete. Working on product listing page next.' },
+  { id: '5', taskId: '1', user: 'Karim Hasan', action: 'left a comment', timestamp: '2026-03-19 11:00', comment: 'Looking great! Please ensure mobile responsiveness is priority.' },
+  { id: '6', taskId: '3', user: 'Rasel Ahmed', action: 'created this task', timestamp: '2026-03-10 09:00' },
+  { id: '7', taskId: '3', user: 'Luna Begum', action: 'changed status to Completed', timestamp: '2026-03-20 16:00' },
+  { id: '8', taskId: '3', user: 'Luna Begum', action: 'left a comment', timestamp: '2026-03-20 16:05', comment: '3 logo variations uploaded. Please review and approve.' },
+  { id: '9', taskId: '4', user: 'Mitu Akter', action: 'left a comment', timestamp: '2026-03-20 10:00', comment: 'Campaign is live. Initial CTR is 3.2%, optimizing targeting.' },
 ];
