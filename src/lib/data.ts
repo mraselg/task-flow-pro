@@ -27,6 +27,24 @@ export interface Task {
   priority: 'low' | 'medium' | 'high';
 }
 
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
+  type: 'task_assigned' | 'task_completed' | 'task_updated' | 'comment';
+}
+
+export interface Activity {
+  id: string;
+  taskId: string;
+  user: string;
+  action: string;
+  timestamp: string;
+  comment?: string;
+}
+
 export const CATEGORY_LABELS: Record<TaskCategory, string> = {
   web_design: 'Web Design & Dev',
   digital_marketing: 'Digital Marketing',
