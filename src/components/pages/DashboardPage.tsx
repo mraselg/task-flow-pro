@@ -1,14 +1,16 @@
+import { useState } from "react";
 import { MOCK_TASKS, MOCK_MEMBERS, STATUS_LABELS, CATEGORY_LABELS, type TaskCategory } from "@/lib/data";
 import { ListTodo, Clock, CheckCircle2, TrendingUp, Users, FolderKanban, AlertTriangle } from "lucide-react";
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend } from "recharts";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const DashboardPage = () => {
   const todoCount = MOCK_TASKS.filter(t => t.status === 'todo').length;
   const progressCount = MOCK_TASKS.filter(t => t.status === 'in_progress').length;
   const completedCount = MOCK_TASKS.filter(t => t.status === 'completed').length;
   const totalCount = MOCK_TASKS.length;
-  const teamCount = MOCK_MEMBERS.length;
+  const teamCount = MOCK_MEMBERS.filter(m => m.role !== 'main_admin_assistant').length;
 
   const stats = [
     { label: "Total Tasks", value: totalCount, icon: TrendingUp, color: "bg-primary text-primary-foreground" },
@@ -17,28 +19,29 @@ const DashboardPage = () => {
     { label: "Completed", value: completedCount, icon: CheckCircle2, color: "bg-success text-success-foreground" },
   ];
 
-  const pieData = [
-    { name: "Completed", value: completedCount, color: "hsl(152, 60%, 42%)" },
-    { name: "In Progress", value: progressCount, color: "hsl(38, 92%, 50%)" },
-    { name: "To Do", value: todoCount, color: "hsl(210, 80%, 55%)" },
+  const statusData = [
+    { name: "To Do", value: todoCount, fill: "hsl(210, 80%, 55%)" },
+    { name: "In Progress", value: progressCount, fill: "hsl(38, 92%, 50%)" },
+    { name: "Completed", value: completedCount, fill: "hsl(152, 60%, 42%)" },
   ];
 
   const categoryData = (Object.keys(CATEGORY_LABELS) as TaskCategory[]).map(cat => ({
     name: CATEGORY_LABELS[cat].split(' ')[0],
-    tasks: MOCK_TASKS.filter(t => t.category === cat).length,
-    completed: MOCK_TASKS.filter(t => t.category === cat && t.status === 'completed').length,
+    total: MOCK_TASKS.filter(t => t.category === cat).length,
+    done: MOCK_TASKS.filter(t => t.category === cat && t.status === 'completed').length,
+    active: MOCK_TASKS.filter(t => t.category === cat && t.status === 'in_progress').length,
   }));
 
   const highPriority = MOCK_TASKS.filter(t => t.priority === 'high').length;
   const medPriority = MOCK_TASKS.filter(t => t.priority === 'medium').length;
   const lowPriority = MOCK_TASKS.filter(t => t.priority === 'low').length;
 
-  const recentTasks = MOCK_TASKS.slice(0, 5);
-
   const upcomingTasks = [...MOCK_TASKS]
     .filter(t => t.status !== 'completed')
     .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
     .slice(0, 4);
+
+  const recentTasks = MOCK_TASKS.slice(0, 5);
 
   return (
     <div className="p-4 lg:p-8 max-w-6xl mx-auto">
@@ -83,44 +86,55 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <div className="glass-card rounded-xl p-5">
-          <h3 className="font-display font-semibold text-foreground mb-4">Task Status Overview</h3>
-          <div className="flex items-center justify-center">
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={4} dataKey="value" strokeWidth={0}>
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+      {/* Unified Analytics Card */}
+      <div className="glass-card rounded-xl p-5 mb-6">
+        <Tabs defaultValue="status">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-display font-semibold text-foreground">Analytics Overview</h3>
+            <TabsList className="bg-muted/50 h-8">
+              <TabsTrigger value="status" className="text-[11px] h-7 px-3">By Status</TabsTrigger>
+              <TabsTrigger value="department" className="text-[11px] h-7 px-3">By Dept</TabsTrigger>
+            </TabsList>
+          </div>
+          <TabsContent value="status" className="mt-0">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={statusData} barSize={40}>
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '0.75rem', fontSize: '12px' }}
+                  cursor={{ fill: 'hsl(var(--muted)/0.3)' }}
+                />
+                <Bar dataKey="value" radius={[8, 8, 0, 0]} name="Tasks">
+                  {statusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
-                </Pie>
-                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '0.75rem', fontSize: '12px' }} />
-              </PieChart>
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
-          </div>
-          <div className="flex justify-center gap-4 mt-2 text-xs text-muted-foreground">
-            {pieData.map(d => (
-              <span key={d.name} className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
-                {d.name} ({d.value})
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="glass-card rounded-xl p-5">
-          <h3 className="font-display font-semibold text-foreground mb-4">Tasks by Department</h3>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={categoryData} barGap={8}>
-              <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '0.75rem', fontSize: '12px' }} />
-              <Bar dataKey="tasks" fill="hsl(210, 80%, 55%)" radius={[6, 6, 0, 0]} name="Total" />
-              <Bar dataKey="completed" fill="hsl(152, 60%, 42%)" radius={[6, 6, 0, 0]} name="Done" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+            <div className="flex justify-center gap-4 mt-2 text-xs text-muted-foreground">
+              {statusData.map(d => (
+                <span key={d.name} className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.fill }} />
+                  {d.name} ({d.value})
+                </span>
+              ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="department" className="mt-0">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={categoryData} barGap={4}>
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '0.75rem', fontSize: '12px' }} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px' }} />
+                <Bar dataKey="total" fill="hsl(210, 80%, 55%)" radius={[6, 6, 0, 0]} name="Total" />
+                <Bar dataKey="active" fill="hsl(38, 92%, 50%)" radius={[6, 6, 0, 0]} name="Active" />
+                <Bar dataKey="done" fill="hsl(152, 60%, 42%)" radius={[6, 6, 0, 0]} name="Done" />
+              </BarChart>
+            </ResponsiveContainer>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Progress Bar */}
@@ -171,7 +185,7 @@ const DashboardPage = () => {
           <h3 className="font-display font-semibold text-foreground mb-4">Upcoming Deadlines</h3>
           <div className="space-y-3">
             {upcomingTasks.map(task => {
-              const daysLeft = Math.ceil((new Date(task.deadline).getTime() - new Date("2026-03-21").getTime()) / (1000 * 60 * 60 * 24));
+              const daysLeft = Math.ceil((new Date(task.deadline).getTime() - new Date("2026-03-22").getTime()) / (1000 * 60 * 60 * 24));
               const member = MOCK_MEMBERS.find(m => m.id === task.assignedTo);
               return (
                 <div key={task.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/50">
