@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Search, Bell, X, ClipboardList, CheckCircle2, RefreshCw, MessageCircle, AlertTriangle, LogOut, UserPlus, KeyRound, Layers, ChevronRight, CheckCheck } from "lucide-react";
 import { MOCK_NOTIFICATIONS } from "@/lib/data";
+import { useAuth } from "@/hooks/useAuth";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
