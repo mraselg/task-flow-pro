@@ -1,6 +1,9 @@
-import { MOCK_MEMBERS, MOCK_TASKS, CATEGORY_LABELS, type TaskCategory } from "@/lib/data";
-import { Crown, Shield, Briefcase, CheckCircle2, Clock, Globe, TrendingUp, Palette } from "lucide-react";
+import { useState } from "react";
+import { MOCK_MEMBERS, MOCK_TASKS, CATEGORY_LABELS, type TaskCategory, type TeamMember } from "@/lib/data";
+import { Crown, Shield, Briefcase, CheckCircle2, Clock, Globe, TrendingUp, Palette, Bot, Sparkles, User } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import MemberProfileModal from "@/components/MemberProfileModal";
 
 const CATEGORIES: TaskCategory[] = ["web_design", "digital_marketing", "graphic_video"];
 
@@ -11,7 +14,9 @@ const CATEGORY_ICONS: Record<TaskCategory, React.ReactNode> = {
 };
 
 const TeamPage = () => {
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const admin = MOCK_MEMBERS.find(m => m.role === 'super_admin');
+  const mira = MOCK_MEMBERS.find(m => m.role === 'main_admin_assistant');
 
   const getMemberTaskStats = (memberId: string) => {
     const tasks = MOCK_TASKS.filter(t => t.assignedTo === memberId);
@@ -29,41 +34,75 @@ const TeamPage = () => {
         <p className="text-muted-foreground text-sm mt-1">Company hierarchy & members</p>
       </div>
 
-      {/* Admin Card */}
-      {admin && (
-        <div className="stat-gradient rounded-xl p-5 mb-6 text-primary-foreground">
-          <div className="flex items-center gap-4">
-            <Avatar className="w-16 h-16 rounded-2xl border-2 border-primary-foreground/20">
-              <AvatarImage src={admin.avatar} alt={admin.name} />
-              <AvatarFallback className="rounded-2xl bg-primary-foreground/20 text-xl font-bold font-display">
-                {admin.name.split(' ').map(n => n[0]).join('')}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <Crown className="w-4 h-4" />
-                <span className="text-xs font-medium opacity-80">Super Admin</span>
+      {/* Admin & Mira Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        {admin && (
+          <div
+            className="stat-gradient rounded-xl p-5 text-primary-foreground cursor-pointer hover:opacity-95 transition-opacity"
+            onClick={() => setSelectedMember(admin)}
+          >
+            <div className="flex items-center gap-4">
+              <Avatar className="w-16 h-16 rounded-2xl border-2 border-primary-foreground/20">
+                <AvatarImage src={admin.avatar} alt={admin.name} />
+                <AvatarFallback className="rounded-2xl bg-primary-foreground/20 text-xl font-bold font-display">
+                  {admin.name.split(' ').map(n => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <Crown className="w-4 h-4" />
+                  <span className="text-xs font-medium opacity-80">Super Admin</span>
+                </div>
+                <h3 className="text-lg font-display font-bold">{admin.name}</h3>
+                <p className="text-xs opacity-80">{admin.description}</p>
               </div>
-              <h3 className="text-lg font-display font-bold">{admin.name}</h3>
-              <p className="text-xs opacity-80">{admin.description}</p>
+            </div>
+            <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-primary-foreground/20">
+              <div className="text-center">
+                <p className="text-xl font-display font-bold">{MOCK_TASKS.length}</p>
+                <p className="text-[10px] opacity-70">Total Tasks</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl font-display font-bold">{MOCK_MEMBERS.filter(m => m.role !== 'super_admin' && m.role !== 'main_admin_assistant').length}</p>
+                <p className="text-[10px] opacity-70">Team Members</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl font-display font-bold">3</p>
+                <p className="text-[10px] opacity-70">Departments</p>
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-primary-foreground/20">
-            <div className="text-center">
-              <p className="text-xl font-display font-bold">{MOCK_TASKS.length}</p>
-              <p className="text-[10px] opacity-70">Total Tasks</p>
+        )}
+
+        {mira && (
+          <div
+            className="glass-card rounded-xl p-5 border-2 border-info/20 cursor-pointer hover:border-info/40 transition-colors"
+            onClick={() => setSelectedMember(mira)}
+          >
+            <div className="flex items-center gap-4">
+              <Avatar className="w-16 h-16 rounded-2xl border-2 border-info/30">
+                <AvatarImage src={mira.avatar} alt={mira.name} />
+                <AvatarFallback className="rounded-2xl bg-info/15 text-info text-xl font-bold font-display">M</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <Bot className="w-4 h-4 text-info" />
+                  <span className="text-xs font-medium text-info">AI Admin Assistant</span>
+                  <Badge className="text-[9px] bg-info/15 text-info border-info/30 gap-0.5">
+                    <Sparkles className="w-2.5 h-2.5" />
+                    AI
+                  </Badge>
+                </div>
+                <h3 className="text-lg font-display font-bold text-foreground">{mira.name}</h3>
+                <p className="text-xs text-muted-foreground">{mira.description}</p>
+              </div>
             </div>
-            <div className="text-center">
-              <p className="text-xl font-display font-bold">{MOCK_MEMBERS.length - 1}</p>
-              <p className="text-[10px] opacity-70">Team Members</p>
-            </div>
-            <div className="text-center">
-              <p className="text-xl font-display font-bold">3</p>
-              <p className="text-[10px] opacity-70">Departments</p>
+            <div className="mt-4 pt-4 border-t border-border">
+              <p className="text-[10px] text-muted-foreground leading-relaxed">{mira.workPrompt}</p>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Department Sections */}
       {CATEGORIES.map(cat => {
@@ -93,7 +132,6 @@ const TeamPage = () => {
               </div>
             </div>
 
-            {/* Department progress */}
             <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mb-4">
               <div className="h-full bg-success rounded-full transition-all" style={{ width: catTasks.length ? `${(catCompleted / catTasks.length) * 100}%` : '0%' }} />
             </div>
@@ -102,7 +140,11 @@ const TeamPage = () => {
             {agents.map(agent => {
               const stats = getMemberTaskStats(agent.id);
               return (
-                <div key={agent.id} className="glass-card rounded-xl p-4 mb-3">
+                <div
+                  key={agent.id}
+                  className="glass-card rounded-xl p-4 mb-3 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => setSelectedMember(agent)}
+                >
                   <div className="flex items-center gap-3">
                     <Avatar className="w-12 h-12 rounded-xl">
                       <AvatarImage src={agent.avatar} alt={agent.name} />
@@ -116,7 +158,9 @@ const TeamPage = () => {
                         <span className="text-[10px] font-semibold text-info uppercase tracking-wider">{agent.title}</span>
                       </div>
                       <p className="text-sm font-bold text-foreground">{agent.name}</p>
-                      <p className="text-xs text-muted-foreground">{agent.description}</p>
+                      {agent.workPrompt && (
+                        <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">{agent.workPrompt}</p>
+                      )}
                     </div>
                     {stats.total > 0 && (
                       <div className="hidden sm:flex items-center gap-2">
@@ -136,7 +180,11 @@ const TeamPage = () => {
               {subAgents.map(sub => {
                 const stats = getMemberTaskStats(sub.id);
                 return (
-                  <div key={sub.id} className="glass-card rounded-xl p-3.5 hover:shadow-md transition-shadow">
+                  <div
+                    key={sub.id}
+                    className="glass-card rounded-xl p-3.5 hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => setSelectedMember(sub)}
+                  >
                     <div className="flex items-center gap-3">
                       <Avatar className="w-10 h-10 rounded-xl">
                         <AvatarImage src={sub.avatar} alt={sub.name} />
@@ -148,7 +196,13 @@ const TeamPage = () => {
                         <p className="text-sm font-semibold text-foreground truncate">{sub.name}</p>
                         <p className="text-[10px] text-muted-foreground truncate">{sub.title}</p>
                       </div>
+                      {sub.aiAgentId && (
+                        <Bot className="w-3.5 h-3.5 text-info shrink-0" />
+                      )}
                     </div>
+                    {sub.workPrompt && (
+                      <p className="text-[10px] text-muted-foreground line-clamp-1 mt-2">{sub.workPrompt}</p>
+                    )}
                     {stats.total > 0 && (
                       <div className="flex items-center gap-3 mt-3 pt-2.5 border-t border-border">
                         <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
@@ -171,6 +225,12 @@ const TeamPage = () => {
           </div>
         );
       })}
+
+      <MemberProfileModal
+        member={selectedMember}
+        open={!!selectedMember}
+        onClose={() => setSelectedMember(null)}
+      />
     </div>
   );
 };
