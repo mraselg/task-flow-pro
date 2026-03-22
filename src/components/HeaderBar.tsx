@@ -246,7 +246,7 @@ const HeaderBar = ({ onSearch }: HeaderBarProps) => {
                 <span>Change Password</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer gap-2 py-2.5 text-destructive focus:text-destructive">
+              <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer gap-2 py-2.5 text-destructive focus:text-destructive">
                 <LogOut className="w-4 h-4" />
                 <span>Logout</span>
               </DropdownMenuItem>
