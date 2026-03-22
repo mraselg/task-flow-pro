@@ -24,6 +24,7 @@ interface HeaderBarProps {
 }
 
 const HeaderBar = ({ onSearch }: HeaderBarProps) => {
+  const { signOut } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
