@@ -22,12 +22,21 @@ const AppLayout = () => {
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [globalSearch, setGlobalSearch] = useState("");
+  const [taskFilter, setTaskFilter] = useState<string | undefined>();
 
   const handleNavClick = (id: string) => {
     if (id === "add") {
       setAddModalOpen(true);
     } else {
       setActiveTab(id as TabId);
+      setTaskFilter(undefined);
+    }
+  };
+
+  const handleNavigate = (tab: string, filter?: string) => {
+    setActiveTab(tab as TabId);
+    if (tab === "tasks" && filter) {
+      setTaskFilter(filter);
     }
   };
 
@@ -79,8 +88,8 @@ const AppLayout = () => {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
           >
-            {activeTab === "dashboard" && <DashboardPage />}
-            {activeTab === "tasks" && <TasksPage searchQuery={globalSearch} />}
+            {activeTab === "dashboard" && <DashboardPage onNavigate={handleNavigate} />}
+            {activeTab === "tasks" && <TasksPage searchQuery={globalSearch} initialFilter={taskFilter} />}
             {activeTab === "calendar" && <CalendarPage />}
             {activeTab === "team" && <TeamPage />}
           </motion.div>
@@ -98,11 +107,7 @@ const AppLayout = () => {
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
                 className={`flex flex-col items-center gap-1 transition-all ${
-                  isAdd
-                    ? ""
-                    : isActive
-                    ? "text-secondary"
-                    : "text-muted-foreground"
+                  isAdd ? "" : isActive ? "text-secondary" : "text-muted-foreground"
                 }`}
               >
                 {isAdd ? (
