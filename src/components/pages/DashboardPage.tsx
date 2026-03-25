@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { ListTodo, Clock, CheckCircle2, TrendingUp, Users, FolderKanban, AlertTriangle, Loader2 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend } from "recharts";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TaskDetailModal from "@/components/TaskDetailModal";
 import { useTeamMembers, useTasks, CATEGORY_LABELS, STATUS_LABELS } from "@/hooks/useSupabaseData";
-import type { DbTask, DbTeamMember } from "@/hooks/useSupabaseData";
+import type { DbTask } from "@/hooks/useSupabaseData";
 
 interface DashboardPageProps {
   onNavigate?: (tab: string, filter?: string) => void;
@@ -12,6 +14,7 @@ interface DashboardPageProps {
 const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
   const { data: tasks = [], isLoading: tasksLoading } = useTasks();
   const { data: members = [], isLoading: membersLoading } = useTeamMembers();
+  const [selectedTask, setSelectedTask] = useState<DbTask | null>(null);
 
   if (tasksLoading || membersLoading) {
     return (
@@ -58,7 +61,6 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
     .slice(0, 4);
 
   const getMember = (id: string | null) => members.find(m => m.id === id);
-
   const today = new Date();
 
   return (
@@ -68,7 +70,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
         <p className="text-muted-foreground text-sm mt-1">Welcome back! Here's your overview.</p>
       </div>
 
-      {/* Stats Grid - Clickable */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
         {stats.map((stat) => (
           <button
@@ -87,27 +89,17 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
         ))}
       </div>
 
-      {/* Team & Dept - Clickable */}
+      {/* Team & Dept */}
       <div className="grid grid-cols-2 gap-3 lg:gap-4 mb-6">
-        <button
-          onClick={() => onNavigate?.("team")}
-          className="glass-card rounded-xl p-4 flex items-center gap-4 hover:shadow-lg hover:scale-[1.02] transition-all text-left"
-        >
-          <div className="w-10 h-10 rounded-lg bg-secondary/15 text-secondary flex items-center justify-center">
-            <Users className="w-5 h-5" />
-          </div>
+        <button onClick={() => onNavigate?.("team")} className="glass-card rounded-xl p-4 flex items-center gap-4 hover:shadow-lg hover:scale-[1.02] transition-all text-left">
+          <div className="w-10 h-10 rounded-lg bg-secondary/15 text-secondary flex items-center justify-center"><Users className="w-5 h-5" /></div>
           <div>
             <p className="text-xl font-display font-bold text-foreground">{teamCount}</p>
             <p className="text-xs text-muted-foreground">Team Members</p>
           </div>
         </button>
-        <button
-          onClick={() => onNavigate?.("team")}
-          className="glass-card rounded-xl p-4 flex items-center gap-4 hover:shadow-lg hover:scale-[1.02] transition-all text-left"
-        >
-          <div className="w-10 h-10 rounded-lg bg-secondary/15 text-secondary flex items-center justify-center">
-            <FolderKanban className="w-5 h-5" />
-          </div>
+        <button onClick={() => onNavigate?.("team")} className="glass-card rounded-xl p-4 flex items-center gap-4 hover:shadow-lg hover:scale-[1.02] transition-all text-left">
+          <div className="w-10 h-10 rounded-lg bg-secondary/15 text-secondary flex items-center justify-center"><FolderKanban className="w-5 h-5" /></div>
           <div>
             <p className="text-xl font-display font-bold text-foreground">3</p>
             <p className="text-xs text-muted-foreground">Departments</p>
@@ -115,7 +107,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
         </button>
       </div>
 
-      {/* Unified Analytics */}
+      {/* Analytics */}
       <div className="glass-card rounded-xl p-5 mb-6">
         <Tabs defaultValue="status">
           <div className="flex items-center justify-between mb-4">
@@ -132,9 +124,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "0.75rem", fontSize: "12px" }} cursor={{ fill: "hsl(var(--muted)/0.3)" }} />
                 <Bar dataKey="value" radius={[8, 8, 0, 0]} name="Tasks">
-                  {statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
+                  {statusData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.fill} />))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -168,9 +158,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
         <div className="glass-card rounded-xl p-5 mb-6">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-display font-semibold text-foreground">Overall Progress</h3>
-            <span className="text-lg font-display font-bold text-secondary">
-              {Math.round((completedCount / totalCount) * 100)}%
-            </span>
+            <span className="text-lg font-display font-bold text-secondary">{Math.round((completedCount / totalCount) * 100)}%</span>
           </div>
           <div className="w-full h-3 bg-muted rounded-full overflow-hidden flex">
             <div className="h-full bg-success transition-all rounded-l-full" style={{ width: `${(completedCount / totalCount) * 100}%` }} />
@@ -208,7 +196,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
           </div>
         </div>
 
-        {/* Upcoming Deadlines */}
+        {/* Upcoming Deadlines — click opens task detail */}
         <div className="glass-card rounded-xl p-5">
           <h3 className="font-display font-semibold text-foreground mb-4">Upcoming Deadlines</h3>
           <div className="space-y-3">
@@ -219,7 +207,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               return (
                 <button
                   key={task.id}
-                  onClick={() => onNavigate?.("tasks", task.status)}
+                  onClick={() => setSelectedTask(task)}
                   className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/50 w-full text-left hover:bg-muted transition-colors"
                 >
                   {member && (
@@ -245,7 +233,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
         </div>
       </div>
 
-      {/* Recent Tasks */}
+      {/* Recent Tasks — click opens task detail */}
       <div className="glass-card rounded-xl p-5 mt-6">
         <h3 className="font-display font-semibold text-foreground mb-4">Recent Tasks</h3>
         <div className="space-y-3">
@@ -254,7 +242,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
             return (
               <button
                 key={task.id}
-                onClick={() => onNavigate?.("tasks", task.status)}
+                onClick={() => setSelectedTask(task)}
                 className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors w-full text-left"
               >
                 {member && (
@@ -279,6 +267,9 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
           })}
         </div>
       </div>
+
+      {/* Task Detail Bottom Sheet — opens when clicking any task from dashboard */}
+      <TaskDetailModal task={selectedTask} members={members} onClose={() => setSelectedTask(null)} />
     </div>
   );
 };
