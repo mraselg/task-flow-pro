@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Crown, Shield, Briefcase, CheckCircle2, Clock, Globe, TrendingUp, Palette, Bot, Sparkles, Loader2, UserPlus } from "lucide-react";
+import { Crown, Shield, Briefcase, CheckCircle2, Clock, Globe, TrendingUp, Palette, Bot, Sparkles, Loader2, UserPlus, Trash2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import MemberProfileModal from "@/components/MemberProfileModal";
 import AddMemberModal from "@/components/AddMemberModal";
-import { useTeamMembers, useTasks, CATEGORY_LABELS } from "@/hooks/useSupabaseData";
+import { useTeamMembers, useTasks, useDeleteTeamMember, CATEGORY_LABELS } from "@/hooks/useSupabaseData";
 import type { DbTeamMember } from "@/hooks/useSupabaseData";
+import { toast } from "@/hooks/use-toast";
 
 type TaskCategory = "web_design" | "digital_marketing" | "graphic_video";
 const CATEGORIES: TaskCategory[] = ["web_design", "digital_marketing", "graphic_video"];
@@ -19,8 +20,10 @@ const CATEGORY_ICONS: Record<TaskCategory, React.ReactNode> = {
 const TeamPage = () => {
   const [selectedMember, setSelectedMember] = useState<DbTeamMember | null>(null);
   const [addMemberOpen, setAddMemberOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const { data: members = [], isLoading: membersLoading } = useTeamMembers();
   const { data: tasks = [], isLoading: tasksLoading } = useTasks();
+  const deleteMember = useDeleteTeamMember();
 
   if (membersLoading || tasksLoading) {
     return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="w-8 h-8 animate-spin text-secondary" /></div>;
@@ -32,6 +35,16 @@ const TeamPage = () => {
   const getMemberTaskStats = (memberId: string) => {
     const t = tasks.filter(t => t.assigned_to === memberId);
     return { total: t.length, completed: t.filter(t => t.status === "completed").length, inProgress: t.filter(t => t.status === "in_progress").length };
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    try {
+      await deleteMember.mutateAsync(id);
+      toast({ title: "Member removed", description: `${name} has been removed from the team` });
+      setConfirmDelete(null);
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
   };
 
   return (
@@ -64,8 +77,8 @@ const TeamPage = () => {
             </div>
             <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-primary-foreground/20">
               <div className="text-center"><p className="text-xl font-display font-bold">{tasks.length}</p><p className="text-[10px] opacity-70">Total Tasks</p></div>
-              <div className="text-center"><p className="text-xl font-display font-bold">{members.filter(m => m.role !== "super_admin" && m.role !== "main_admin_assistant").length}</p><p className="text-[10px] opacity-70">Team Members</p></div>
-              <div className="text-center"><p className="text-xl font-display font-bold">3</p><p className="text-[10px] opacity-70">Departments</p></div>
+              <div className="text-center"><p className="text-xl font-display font-bold">{members.filter(m => m.role !== "super_admin" && m.role !== "main_admin_assistant").length}</p><p className="text-[10px] opacity-70">Team</p></div>
+              <div className="text-center"><p className="text-xl font-display font-bold">3</p><p className="text-[10px] opacity-70">Depts</p></div>
             </div>
           </div>
         )}
@@ -119,7 +132,7 @@ const TeamPage = () => {
             {agents.map(agent => {
               const stats = getMemberTaskStats(agent.id);
               return (
-                <div key={agent.id} className="glass-card rounded-xl p-4 mb-3 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedMember(agent)}>
+                <div key={agent.id} className="glass-card rounded-xl p-4 mb-3 cursor-pointer hover:shadow-md transition-shadow group relative" onClick={() => setSelectedMember(agent)}>
                   <div className="flex items-center gap-3">
                     <Avatar className="w-12 h-12 rounded-xl">
                       <AvatarImage src={agent.avatar_url || ""} alt={agent.name} />
@@ -138,7 +151,23 @@ const TeamPage = () => {
                         <div className="text-center px-2"><p className="text-sm font-bold text-foreground">{stats.total}</p><p className="text-[9px] text-muted-foreground">Tasks</p></div>
                       </div>
                     )}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setConfirmDelete(agent.id); }}
+                      className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-destructive/10 transition-all"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                    </button>
                   </div>
+                  {/* Delete confirm */}
+                  {confirmDelete === agent.id && (
+                    <div className="mt-3 pt-3 border-t border-border flex items-center justify-between" onClick={e => e.stopPropagation()}>
+                      <p className="text-xs text-destructive font-medium">Remove {agent.name}?</p>
+                      <div className="flex gap-2">
+                        <button onClick={() => setConfirmDelete(null)} className="text-xs px-3 py-1.5 rounded-lg bg-muted text-muted-foreground font-medium">Cancel</button>
+                        <button onClick={() => handleDelete(agent.id, agent.name)} className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground font-medium">Remove</button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -147,7 +176,7 @@ const TeamPage = () => {
               {subAgents.map(sub => {
                 const stats = getMemberTaskStats(sub.id);
                 return (
-                  <div key={sub.id} className="glass-card rounded-xl p-3.5 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedMember(sub)}>
+                  <div key={sub.id} className="glass-card rounded-xl p-3.5 hover:shadow-md transition-shadow cursor-pointer group relative" onClick={() => setSelectedMember(sub)}>
                     <div className="flex items-center gap-3">
                       <Avatar className="w-10 h-10 rounded-xl">
                         <AvatarImage src={sub.avatar_url || ""} alt={sub.name} />
@@ -158,6 +187,12 @@ const TeamPage = () => {
                         <p className="text-[10px] text-muted-foreground truncate">{sub.title}</p>
                       </div>
                       {sub.is_ai_agent && <Bot className="w-3.5 h-3.5 text-info shrink-0" />}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setConfirmDelete(sub.id); }}
+                        className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-destructive/10 transition-all"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                      </button>
                     </div>
                     {sub.work_prompt && <p className="text-[10px] text-muted-foreground line-clamp-1 mt-2">{sub.work_prompt}</p>}
                     {stats.total > 0 && (
@@ -165,6 +200,16 @@ const TeamPage = () => {
                         <div className="flex items-center gap-1 text-[10px] text-muted-foreground"><CheckCircle2 className="w-3 h-3 text-success" />{stats.completed} done</div>
                         <div className="flex items-center gap-1 text-[10px] text-muted-foreground"><Clock className="w-3 h-3 text-warning" />{stats.inProgress} active</div>
                         <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden"><div className="h-full bg-success rounded-full" style={{ width: `${(stats.completed / stats.total) * 100}%` }} /></div>
+                      </div>
+                    )}
+                    {/* Delete confirm */}
+                    {confirmDelete === sub.id && (
+                      <div className="mt-3 pt-3 border-t border-border flex items-center justify-between" onClick={e => e.stopPropagation()}>
+                        <p className="text-xs text-destructive font-medium">Remove?</p>
+                        <div className="flex gap-2">
+                          <button onClick={() => setConfirmDelete(null)} className="text-xs px-3 py-1.5 rounded-lg bg-muted text-muted-foreground font-medium">Cancel</button>
+                          <button onClick={() => handleDelete(sub.id, sub.name)} className="text-xs px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground font-medium">Remove</button>
+                        </div>
                       </div>
                     )}
                   </div>

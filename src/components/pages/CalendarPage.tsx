@@ -1,9 +1,11 @@
 import { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, CalendarDays, Clock, Loader2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, Clock, Loader2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import TaskDetailModal from "@/components/TaskDetailModal";
 import { useTasks, useTeamMembers, CATEGORY_LABELS, STATUS_LABELS } from "@/hooks/useSupabaseData";
+import type { DbTask } from "@/hooks/useSupabaseData";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -11,6 +13,7 @@ const MONTHS = ["January", "February", "March", "April", "May", "June", "July", 
 const CalendarPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<DbTask | null>(null);
 
   const { data: tasks = [], isLoading: tasksLoading } = useTasks();
   const { data: members = [] } = useTeamMembers();
@@ -22,9 +25,8 @@ const CalendarPage = () => {
     const map: Record<string, typeof tasks> = {};
     tasks.forEach(task => {
       if (!task.deadline) return;
-      const d = task.deadline;
-      if (!map[d]) map[d] = [];
-      map[d].push(task);
+      if (!map[task.deadline]) map[task.deadline] = [];
+      map[task.deadline].push(task);
     });
     return map;
   }, [tasks]);
@@ -132,7 +134,11 @@ const CalendarPage = () => {
               {selectedTasks.map(task => {
                 const assignee = getMember(task.assigned_to);
                 return (
-                  <div key={task.id} className="rounded-xl border border-border bg-muted/30 p-4 hover:bg-muted/50 transition-colors">
+                  <button
+                    key={task.id}
+                    onClick={() => { setSelectedDate(null); setSelectedTask(task); }}
+                    className="w-full text-left rounded-xl border border-border bg-muted/30 p-4 hover:bg-muted/50 hover:shadow-md transition-all"
+                  >
                     <div className="flex items-start gap-3">
                       {assignee && (
                         <Avatar className="w-9 h-9 mt-0.5 shrink-0 rounded-lg">
@@ -166,13 +172,16 @@ const CalendarPage = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Task Detail Bottom Sheet */}
+      <TaskDetailModal task={selectedTask} members={members} onClose={() => setSelectedTask(null)} />
     </div>
   );
 };

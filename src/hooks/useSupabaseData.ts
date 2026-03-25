@@ -45,6 +45,17 @@ export const useUpdateTeamMember = () => {
   });
 };
 
+export const useDeleteTeamMember = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("team_members").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["team_members"] }),
+  });
+};
+
 // ─── Tasks ───────────────────────────────────────────
 export const useTasks = () =>
   useQuery({
@@ -78,6 +89,17 @@ export const useUpdateTask = () => {
       const { data, error } = await supabase.from("tasks").update(updates).eq("id", id).select().single();
       if (error) throw error;
       return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["tasks"] }),
+  });
+};
+
+export const useDeleteTask = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("tasks").delete().eq("id", id);
+      if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["tasks"] }),
   });
